@@ -1,0 +1,1730 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+/* Global Styles */
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #dee2e6 100%);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+#fixation-stats-container{
+    text-align: center;
+}
+
+h2 {
+    color: #5482be;
+}
+.graph {
+    width: 100%;
+    height: auto;
+    margin-top: 20px; /* Add margin to create space between canvas and previous elements */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+ button {
+    background: transparent;
+    backdrop-filter: blur(10px); /* Frosted glass blur effect */
+    border: 1px solid #5482be; /* Light white border */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+    color: #5482be;
+    padding: 10px;
+    border-radius: 15px; /* Rounded corners for a soft look */
+    text-align: center; /* Center the text */
+    font-size: 14px; /* Adjust the font size */
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+ button:hover {
+    background: #5482be; /* Increase transparency on hover */
+    color: wheat;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Larger shadow on hover */
+    transform: translateY(-2px); /* Slight hover lift */
+}
+
+/* Active button state */
+ button:active {
+    background: rgba(255, 255, 255, 0.2); /* Active state background */
+    transform: translateY(0); /* Return button to normal position */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Active state shadow */
+}
+
+.menu-item label{
+    color: wheat;
+}
+
+#kosko-chart {
+    z-index: 1; /* Ensure it's lower than other elements that may have a higher z-index */
+    position: relative; /* Make sure it's not floating above other content */
+    max-width: 80%;  /* Make the chart responsive */
+    height: auto;
+}
+
+#difference-bar-chart {
+    z-index: 1; /* Ensure it's lower than other elements that may have a higher z-index */
+    position: relative; /* Make sure it's not floating above other content */
+    height: auto;
+    width: 60%;
+    margin: 10px auto;
+}
+
+
+
+/* Canvas for drawing edges */
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;  /* Ensures the canvas stays behind the nodes */
+    width: 100%;  /* Ensures it covers the full container */
+    height: 100%; /* Ensures it covers the full container */
+}
+.container {
+    display: flex;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center;
+}
+
+
+/* Left Panel for controls and checkpoint tray */
+.left-panel {
+    width: 25%;  /* Adjust width as needed */
+    display: flex;
+    flex-direction: column;  /* Stack elements vertically */
+    gap: 20px;  /* Spacing between elements */
+}
+/* Checkpoint Tray Container */
+/* Styles for the checkpoint button wrapper */
+.checkpoint-btn-wrapper {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+    width: 90%; /* Adjust width as needed */
+}
+
+.increase-btn{
+    background: linear-gradient(135deg, #42a5f5, #1e88e5);
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-size: 0.7rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Make it take up the full width of its container */
+    text-align: left;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+
+/* Styles for the checkpoint button */
+.checkpoint-btn {
+    background: linear-gradient(135deg, #42a5f5, #1e88e5);
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-size: 1rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Make it take up the full width of its container */
+    text-align: left;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+
+#popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: red;
+    color: white;
+    font-size: 30px;
+    text-align: center;
+    padding-top: 40vh; /* To center the text vertically */
+    z-index: 9999;
+  }
+
+.checkpoint-btn:hover {
+    background: linear-gradient(135deg, #64b5f6, #2196f3);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles for the cross (X) remove button */
+.checkpoint-btn .remove-btn {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #ff5252;
+    color: white;
+    font-size: 1rem;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover effect on the cross (X) */
+.checkpoint-btn .remove-btn:hover {
+    background-color: #e53935;
+    transform: scale(1.1); /* Slightly enlarge the button on hover */
+}
+
+
+/* Basic reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.kosko-table-container{
+
+    margin: 0 auto;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-width: 50%;
+    max-height: 500px;
+}
+
+
+.fixation-table-container{
+    margin: 0 auto;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-width: 50%;
+    max-height: 500px;
+}
+
+/* Center the table */
+#kosko-results-table {
+    margin: 20px auto; /* Center table horizontally with margin */
+    border-collapse: collapse;
+    width: 60%; /* Set the width to 80% of the page */
+    background-color: #f9f9f9; /* Light background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add some shadow */
+}
+
+/* Style table headers */
+#kosko-results-table thead th {
+    background-color: #4CAF50; /* Green background for header */
+    color: white; /* White text */
+    padding: 12px; /* Padding for headers */
+    text-align: center; /* Center align text */
+    border: 1px solid #ddd; /* Add border to the cells */
+}
+
+/* Style table rows */
+#kosko-results-table tbody td {
+    padding: 10px; /* Padding for cells */
+    text-align: center; /* Center align the content */
+    border: 1px solid #ddd; /* Add border to the cells */
+    color: #333; /* Darker text color */
+}
+
+/* Highlight the last row as converged */
+#kosko-results-table tbody tr:last-child {
+    background-color: #FFEB3B; /* Yellow background for convergence */
+    font-weight: bold; /* Make it bold to stand out */
+}
+#kosko-line-chart {
+    display: block;
+    margin: 20px auto;
+    width: 60%;
+    height: 400px;
+    position: relative;  /* Ensure it is positioned relative to its container */
+    z-index: 100;       /* Bring the canvas to the foreground */
+}
+
+/* Add hover effect on rows */
+#kosko-results-table tbody tr:hover {
+    background-color: #f1f1f1; /* Light gray on hover */
+}
+
+/* Add zebra striping to the rows */
+#kosko-results-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2; /* Light background on even rows */
+}
+
+/* Ensure the tables don't exceed the screen width */
+#table-container, #fixation-table {
+    max-width: 90%; /* Adjust as necessary */
+    margin: 0 auto; /* Center horizontally */
+    border-collapse: collapse; /* Optional: Make the table look cleaner */
+    padding-bottom: 100px;
+}
+
+/* Style the table to keep it consistent with other elements */
+#table-container th, #table-container td, #fixation-table th, #fixation-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+    font-size: 14px;
+}
+
+.diff-chart{
+    margin-bottom: 200px;
+}
+
+#table-container th, #fixation-table th {
+    background-color: #007bff;
+    color: white;
+}
+
+#table-container td, #fixation-table td {
+    background-color: #fff;
+}
+
+nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 200px; /* Adjust width as needed */
+    height: 100vh; /* Full viewport height */
+    background-color: rgba(234, 234, 234, 0.5); /* Dark semi-transparent background */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center items vertically */
+    align-items: center; /* Center items horizontally */
+    padding: 1rem 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+    z-index: 999; /* Ensure the menu stays on top */
+    backdrop-filter: blur(10px); /* Apply blur effect for glassmorphism */
+    overflow: visible; /* Allow elements like tooltips to overflow */
+}
+
+.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu li {
+    margin: 10px 0; /* Adjust spacing between buttons */
+}
+
+.menu button {
+    background: transparent;
+    backdrop-filter: blur(10px); /* Frosted glass blur effect */
+    border: 1px solid #5482be; /* Light white border */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+    color: #5482be;
+    padding: 12px 20px; /* Add some padding for a clean layout */
+    border-radius: 15px; /* Rounded corners for a soft look */
+    width: 160px; /* Adjust width to fit within the menu */
+    text-align: center; /* Center the text */
+    font-size: 14px; /* Adjust the font size */
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.menu button:hover {
+    background: #5482be; /* Increase transparency on hover */
+    color: wheat;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Larger shadow on hover */
+    transform: translateY(-2px); /* Slight hover lift */
+}
+
+/* Active button state */
+.menu button:active {
+    background: rgba(255, 255, 255, 0.2); /* Active state background */
+    transform: translateY(0); /* Return button to normal position */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Active state shadow */
+}
+
+/* Tooltip container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+/* Tooltip positioning (to the right of the button) */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    top: 50%; /* Align to the center of the button */
+    left: 105%; /* Move the tooltip to the right of the button */
+    transform: translateY(-50%); /* Center the tooltip vertically */
+    z-index: 1000;
+    opacity: 0; /* Initial opacity */
+    transition: opacity 0.3s ease-in-out; /* Smooth fade-in transition */
+}
+
+/* Tooltip arrow (optional, pointing to the left side of the tooltip) */
+.tooltip .tooltiptext::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -5px; /* Place the arrow to the left side of the tooltip */
+    transform: translateY(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent black transparent transparent;
+}
+
+/* Show the tooltip on hover */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1; /* Show the tooltip */
+}
+
+/* Controls Section */
+#controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Space between buttons */
+    flex: 1;
+    align-items: center;  /* Center align the buttons */
+}
+
+
+/* FCM Network Container (Right side) */
+#network-container {
+    margin-bottom: 20px; /* Add margin to create space between canvas and table */
+    margin-top: 6.5%;
+    position: relative;
+    width: 70%;  /* Adjust width as needed */
+    height: 500px;
+    border: 1px solid #ccc;
+    background: rgba(248, 252, 255, 0.664);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: width 0.5s, height 0.5s;
+}
+
+/* Edge Removal Button */
+.edge-remove-btn {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+#remove-edge-btn {
+    position: absolute;
+    display: none;
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    padding: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 101;
+}
+
+#remove-edge-btn:hover {
+    background-color: rgba(200, 0, 0, 0.8);
+}
+
+/* Styling for nodes in the network */
+.node {
+    position: absolute;
+    padding: 10px 15px;
+    background-color: #5482be;
+    border-radius: 8px;
+    text-align: center;
+    white-space: nowrap;
+    user-select: none;  /* Disable text selection */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    cursor: grab;
+    min-width: 60px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none; 
+    font-weight: bold;
+    color: #efefef;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    top: 0;  /* Ensure nodes are placed inside the network container */
+    left: 0;
+    z-index: 400;  /* Ensure nodes appear on top of the canvas */
+    transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+.edge {
+    position: absolute;
+    background-color: black;  /* Default color for the edge */
+    height: 2px;              /* Thickness of the edge */
+    transform-origin: 0 0;     /* Ensure rotation happens from the start of the edge */
+}
+
+.edge-label {
+    position: absolute;
+    font-size: 12px;
+    color: black;
+}
+
+.node.dragging {
+    cursor: grabbing;
+    transition: none;
+}
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px); /* Adds blur to the background */
+}
+
+.loading-content {
+    text-align: center;
+    color: white;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.loading-content img {
+    width: 150px; /* Increased image size */
+    height: 150px;
+    margin-bottom: 20px; /* Space between image and text */
+}
+
+/* Context menu */
+.context-menu {
+    position: absolute;
+    display: none;
+    background-color: rgba(255, 255, 255, 0.85);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    z-index: 100;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.context-menu button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #343a40;
+    padding: 8px;
+    text-align: left;
+    width: 100%;
+    font-weight: bold;
+}
+
+.context-menu button:hover {
+    background-color: #f8f9fa;
+}
+
+/* Chat container styling */
+#chat-container {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+/* Styling for chat window */
+.chat-box {
+    width: 100%;
+    height: 200px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    overflow-y: auto;
+    padding: 15px;
+    margin-bottom: 10px;
+    color: #212529;
+}
+
+/* Input field and send button */
+.chat-input {
+    width: calc(100% - 60px);
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    font-size: 14px;
+    color: #495057;
+}
+
+.chat-send-btn {
+    width: 50px;
+    padding: 12px;
+    background: rgba(0, 123, 255, 0.7);
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    color: #fff;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.chat-send-btn:hover {
+    background-color: rgba(0, 123, 255, 0.9);
+}
+
+
+/* Modal styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+}
+
+.modal-content .description{
+    padding: 20px;
+}
+
+.selected-checkpoint {
+    background-color: #007bff;  /* Blue background */
+    color: white;  /* White text */
+    border: 1px solid #007bff;
+    font-weight: bold;
+}
+
+/* Styling for the modal */
+.password-modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    backdrop-filter: blur(10px); /* Apply blur to the background */
+    z-index: 999; /* Ensure the modal is on top */
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slight shadow for depth */
+}
+
+#password-input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #99d1ff;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #dff1ff, #f8fbff); /* Bluish gradient */
+    color: #000;
+    font-size: 13px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); /* Optional inner shadow */
+    transition: background 0.5s ease; /* Smooth transition for background change */
+}
+
+#password-input:focus {
+    background: linear-gradient(135deg, #66ccff, #ffffff); /* New gradient on focus */
+    outline: none; /* Removes default focus outline */
+}
+
+#password-submit-btn {
+    background: #5482be;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: background 0.3s ease, transform 0.3s ease; /* Smooth background and hover animation */
+}
+
+#password-submit-btn:hover {
+    background: #2a68ba;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Slightly deeper shadow on hover */
+}
+
+
+.node-remove-btn,
+.node-rename-btn {
+    display: none;  /* Hide buttons by default */
+    border-radius: 50%;
+    padding: 0;
+    width: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    color: white;
+}
+#timeline-tray {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    height: 45%;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: rgba(234, 234, 234, 0.5);
+    color: #5482be;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 14px;
+    scroll-behavior: smooth;
+    overflow-y: scroll;
+    text-align: left;
+}
+
+#timeline-tray p {
+    color: #000;
+    font-size: 10px;
+}
+
+#timeline-tray h3 {
+    font-weight: bold;
+    padding: 5px;
+}
+
+.node-remove-btn {
+    background-color: red;
+}
+
+.node-rename-btn {
+    background-color: blue;
+}
+
+/* Show the buttons when the node is hovered */
+.node:hover .node-remove-btn,
+.node:hover .node-rename-btn {
+    display: inline-block;  /* Make the buttons visible on hover */
+
+}
+
+#node-stats-container{
+    margin: 0 auto;
+    align-items: center;
+    text-align: center;
+}
+
+
+.wm-container, .ns-container {
+    margin: 0 auto;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-width: 50%;
+    max-height: 500px;
+    text-align: center;
+    margin-top: 10px; /* Add space between the canvas and the table */
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+
+ #weight-matrix-table, #node-stats-table {
+    margin: 0 auto;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Subtle shadow for the table */
+}
+
+#weight-matrix-table th, #weight-matrix-table td, #node-stats-table th, #node-stats-table td {
+    padding: 12px;  /* Increase padding for better readability */
+    border: 1px solid #ddd; /* Light grey border */
+    font-size: 11px;
+    transition: background-color 0.3s ease;
+}
+
+
+#node-stats-table tr:nth-child(even), #weight-matrix-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Light grey background for even rows */
+}
+
+#node-stats-table tr:nth-child(odd), #weight-matrix-table tr:nth-child(odd) {
+    background-color: #ffffff; /* White background for odd rows */
+}
+
+#node-stats-table td:hover, #weight-matrix-table td:hover {
+    background-color: #f1f1f1; /* Highlight row on hover */
+}
+
+#node-stats-table th, #weight-matrix-table th {
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+#node-stats-table td, #weight-matrix-table td {
+    font-size: 14px;
+    color: #333;
+}
+
+.settings-panel {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    width: 100%;
+}
+
+.settings-section {
+    margin-bottom: 15px;
+}
+
+.settings-section label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.settings-section select {
+    width: 100%;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+#bottom-menu {
+    margin: 0 auto;
+    width: 70%;
+    backdrop-filter: blur(15px);
+    position: fixed;
+    justify-content: space-between;
+    bottom: 0;
+    border-radius: 2rem;
+    left: 0;
+    right: 0;
+    background-color: rgba(234, 234, 234, 0.934);
+    padding: 15px;
+    display: flex;               /* Use flexbox to align items horizontally */
+    justify-content: space-between;
+    z-index: 500;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+
+#left-container {
+    display: flex;
+    flex-direction: row; /* Align the dropdowns and buttons in a row */
+    align-items: center; /* Vertically center items */
+}
+
+.menu-item {
+    margin-right: 20px;  /* Add space between the dropdowns and buttons */
+}
+
+#scrollable-row-container {
+    width: 25%;
+    display: flex;
+    overflow-x: auto;             /* Enable horizontal scrolling for the container */
+    padding: 10px;
+    background: rgb(195,221,255);
+    background: linear-gradient(160deg, rgba(195,221,255,1) 0%, rgba(255,255,255,1) 100%);
+    border-radius: 10px;
+    align-items: center;          /* Align items (buttons) vertically in the center */
+    overflow-y: scroll;
+    flex-grow: 1;                 /* Make this container grow to fill the remaining space */
+    gap: 10px;                    /* Add space between the buttons */
+}
+
+#scrollable-row-container button {
+    flex-shrink: 0;               /* Prevent buttons from shrinking */
+    border: none;
+    background-color: #66b2ff;    /* Button background color */
+    color: #fff;                  /* Button text color */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease; /* Smooth transition for hover effect */
+}
+
+#scrollable-row-container button:hover {
+    background-color: #3385ff;    /* Darker blue when hovering */
+}
+
+
+/* Style for the fixation results table */
+#fixation-results-table {
+    width: 60%;
+    border-collapse: separate; /* Enable separate borders for more control */
+    margin: 20px auto;
+    text-align: center;
+    background-color: #f9f9f9; /* Light background color for table */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for a subtle 3D effect */
+    border-radius: 12px; /* Round the corners of the table */
+    overflow: hidden; /* Ensure rounded corners apply to the entire table */
+}
+
+#fixation-results-table th, #fixation-results-table td {
+    border: none; /* Remove borders from cells */
+    padding: 15px 10px; /* Add padding to make content more readable */
+    font-size: 14px; /* Slightly larger font size for better readability */
+    text-align: center;
+}
+
+#fixation-results-table th {
+    background-color: #007bff; /* Blue header background for distinct look */
+    color: white; /* White text color for contrast */
+    text-transform: uppercase; /* Make header text uppercase for emphasis */
+    font-weight: bold; /* Bold the header text */
+    border-bottom: 2px solid #ddd; /* Subtle border under the header */
+}
+
+#fixation-results-table tr:nth-child(even) {
+    background-color: #f2f2f2; /* Slightly different background color for even rows */
+}
+
+#fixation-results-table tr:nth-child(odd) {
+    background-color: #ffffff; /* White background for odd rows */
+}
+
+#fixation-results-table td {
+    color: #333; /* Darker text for better contrast */
+}
+
+#fixation-results-table tr:hover {
+    background-color: #e0f2ff; /* Subtle highlight row on hover */
+    transition: background-color 0.3s ease; /* Smooth transition effect */
+}
+
+#fixation-results-table th:first-child, #fixation-results-table td:first-child {
+    background-color: #0056b3; /* Different background for the iteration column */
+    color: white; /* White text for contrast */
+    font-weight: bold; /* Bold the first column (iterations) */
+}
+
+#fixation-results-table th, #fixation-results-table td {
+    border: solid 2px white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Slight shadow for 3D effect */
+}
+
+
+.node-fields {
+    display: flex;
+    gap: 15px;  /* Spacing between node fields */
+}
+
+.node-field {
+    display: flex;
+    flex-shrink: 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 8px;
+    min-width: 150px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+}
+
+.node-field {
+    display: flex;
+    flex-shrink: 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 8px;
+    min-width: 150px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+}
+
+
+.node-header {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 8px;
+}
+
+.node-input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+}
+
+.input-label {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.apply-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px; /* Add some spacing between the buttons */
+}
+
+.apply-btn:hover {
+    background-color: #218838;
+}
+/* Make dropdowns visible on white background */
+select {
+    background-color: rgb(234, 234, 234);    /* Ensure the background is white */
+    border: 1px solid #ccc;     /* Add a border to stand out */
+    padding: 8px;               /* Add padding for better visibility */
+    border-radius: 5px;         /* Slight rounding for a modern look */
+    font-size: 14px;            /* Adjust the font size for readability */
+    color: #5482be;                /* Darker text for good contrast */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a slight shadow for depth */
+    appearance: none;           /* Remove default dropdown arrow styling for consistency */
+}
+
+
+.menu-item {
+    margin-right: 20px;
+}
+
+.apply-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.apply-btn:hover {
+    background-color: #218838;
+}
+
+#apply-settings {
+    padding: 10px 20px;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#apply-settings:hover {
+    background-color: #218838;
+}
+
+.undermenu {
+    max-width: 30%;
+}
+
+/* Right Panel for Checkpoint and Timeline Tray */
+.right-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 200px;
+    height: 100vh;
+    background-color: rgba(234, 234, 234, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 1rem 0;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 500;
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+}
+/* Combined menu styling */
+.menu-bar-top {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.9); /* Dark background for the top menu */
+    z-index: 1000; /* Ensure it's always on top */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Shadow for depth */
+    color: white;
+    white-space: nowrap; /* Ensure everything stays in one line */
+}
+
+/* Styling for the action selection menu */
+.menu-item {
+    display: flex;
+    align-items: center;
+    margin-right: 20px; /* Space between menu and node inputs */
+}
+
+.menu-item label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+/* Container for the node inputs, with horizontal scrolling */
+.node-list-scrollable {
+    display: flex;
+    align-items: center;
+    overflow-x: auto; /* Horizontal scroll enabled */
+    white-space: nowrap; /* Prevent wrapping */
+    padding-bottom: 5px;
+}
+
+/* Individual node input styling */
+.node-item {
+    display: inline-flex;
+    align-items: center;
+    background-color: #3d3d3d;
+    padding: 8px 15px;
+    border-radius: 10px;
+    margin-right: 10px;
+    color: white;
+    font-weight: bold;
+    box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Input field for each node */
+.node-item input {
+    margin-left: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 50px;
+    text-align: center;
+}
+
+
+
+
+.vertical-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.vertical-menu li {
+    margin: 10px 0;
+}
+
+.vertical-menu button {
+    background: transparent;
+    backdrop-filter: blur(10px);
+    border: 1px solid #5482be;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    color: #5482be;
+    margin-left: 10px;
+    padding: 12px 20px;
+    border-radius: 15px;
+    width: 130px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.vertical-menu button:hover {
+    background: #5482be;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    color: wheat;
+}
+
+
+.node-input {
+    width: 100px;
+    padding: 5px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.input-label {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.menu-item {
+    margin-right: 20px;
+}
+.dropdown-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px   ;
+    justify-content: space-between; 
+    align-items:center;
+    vertical-align: middle;
+}
+
+
+.dropdown-item {
+    display: flex;
+    width: 300px; /* Set the width for each dropdown row */
+}
+
+.dropdown-item label {
+    flex-basis: 50%;
+    font-size: 0.8em;
+    color: #5482be; /* Light golden color for labels */
+    font-weight: 500;
+}
+
+.dropdown-item select {
+    font-family: 'Courier New', Courier, monospace;
+    flex-basis: 50%;
+    padding: 5px;
+    font-weight: bold;
+    font-size: 0.8em;
+    border-radius: 4px;
+    background-color: wheat;
+    color: #5482be;
+}
+
+/* Stack buttons vertically */
+.button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column; /* Stack buttons on top of each other */
+    margin-top: 15px;
+}
+
+.green-button {
+    background-color: transparent; /* Green background */
+    border: solid 1px #5482be;
+    color: #5482be;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.green-button:hover {
+    background-color: #5482be; /* Darker green on hover */
+    color: wheat;
+    font-weight: bold;
+}
+
+.password-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent black overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Modal content styling */
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    width: 1000px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo styling */
+.logo {
+    width: 6rem;
+    margin-bottom: 1rem;
+}
+
+/* Title styling */
+.modal-title {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+/* Description styling */
+.description {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+}
+
+/* Password input styling */
+.password-input {
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 1.5rem;
+}
+
+/* Submit button styling */
+.submit-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #218838;
+}
+
+/* Style for the Tool Features section */
+#tool-features {
+    background-color: #c5d2df00;
+    padding: 20px;
+    border-radius: 8px;
+    color: #282828;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+#tool-features p {
+    font-size: 11px;
+}
+
+#tool-features ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#tool-features ul li {
+    font-size: 13px;
+    line-height: 1.8;
+    border-bottom: 1px solid #34495e;
+}
+
+.checkpoint-text{
+    display: fixed;
+    padding: 10px;
+}
+
+.checkpoint-text p{
+    font-size: 10px;
+}
+
+#checkpoint-tray-container {
+    height: 50%;
+    overflow-y: scroll;
+}
+
+#checkpoint-tray-container h3 {
+    color: #5482be;
+    font-weight: bold;
+}
+
+#tool-features ul li:before {
+    content: "\2713";
+    color: #2ecc71;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+#tool-features ul li:last-child {
+    border-bottom: none;
+}
+
+
+/* Footer for credits */
+.modal-footer {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.modal-footer p {
+    margin: 0;
+}
+
+/* Footer name styling */
+.modal-footer strong {
+    color: #000;
+}
+
+/* Open-source info */
+.opensource-info {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: #777;
+}
+
+/* Full screen overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Dark background with opacity */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001; /* High z-index to ensure it stays on top */
+}
+
+/* Content inside the overlay */
+.overlay-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 1200px;
+    max-height: 90%; /* Allow content to scroll if it exceeds 90% of the viewport height */
+    overflow-y: auto; /* Make content scrollable */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative; /* So the close button stays inside the content */
+}
+
+/* Close Button (X) */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close-btn:hover {
+    color: #ff5252; /* Change color on hover */
+}
+
+/* Text styling for the summary */
+#summary-text-overlay {
+    font-size: 1.2rem;
+    color: #333;
+    margin-top: 20px;
+}
+
+.scrollable-container button {
+    background: transparent;
+    color: rgb(83, 83, 83);
+    border: none;
+    margin: 5px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds subtle depth */
+    transition: background 0.3s ease, transform 0.3s ease; /* Smooth transition */
+}
+
+.scrollable-container button:hover {
+    background: #5482be;
+    color: wheat;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Deeper shadow on hover */
+}
+
+.scrollable-container button:active {
+    transform: translateY(0); /* No lift when button is clicked */
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Slightly reduced shadow on click */
+}
+
+
+/* Modal container */
+.password-modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 999;
+}
+
+.password-modal img{
+    width: 80%;
+}
+    
+/* Modal content with two-column layout */
+.modal-content {
+    display: flex;
+    justify-content: space-between;
+    width: 80%; /* Adjust width as needed */
+    max-width: 1000px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Left section for password input */
+.password-left {
+    flex: 1;
+    padding-right: 20px;
+    border-right: 1px solid #ccc;
+}
+
+/* Right section for AI readiness and features */
+.password-right {
+    flex: 1;
+    padding-left: 20px;
+}
+
+/* General styling */
+.password-left h2, .password-right h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.password-left p {
+    margin-bottom: 1rem;
+}
+
+.password-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.submit-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    background-color: #218838;
+}
+
+.scrollable-container {
+    max-height: 100px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+
+#open-source-info {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Logo styling */
+.logo {
+    width: 100px;
+    margin-bottom: 20px;
+}
+#image-container {
+    align-items: center;  /* Align text and images vertically */
+    display: flex;
+    gap: 10px;                        /* Space between images */
+    overflow-x: auto;                /* Horizontal scrolling if needed */
+}
+
+#image-container img {
+    width: 30px;                    /* Set the same width for all images */
+    height: auto;                    /* Maintain aspect ratio */
+    border-radius: 5px;              /* Optional: adds rounded corners */
+    object-fit: contain;             /* Ensures the images fit within the set width without distortion */
+}
+
+.ai-readiness-button {
+    background: #b6974e;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+}
+
+.ai-readiness-button:hover {
+    background: #7a5f20;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Deeper shadow on hover */
+}
+
+.ai-readiness-button:active {
+    transform: translateY(0); /* Reset lift effect on click */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15); /* Slightly reduced shadow on click */
+}
+
+#ai-readiness {
+    margin-top: 20px;
+}
+
+p:hover, span:hover, li:hover {
+    font-weight: bold;
+    -webkit-transition: all .5s;
+    -moz-transition: all .5s;
+    -o-transition: all .5s;
+    transition: all .5s;
+}
+
+#top-menu { 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 50%;  /* Centers the menu horizontally */
+    transform: translateX(-50%);  /* Align the menu to the center */
+    width: 70%;  /* Covers 60% of the page width */
+    background-color: rgba(234, 234, 234, 0.934);  /* Background color */
+    backdrop-filter: blur(15px);
+    color: #5482be;
+    padding: 15px 0;  /* Padding for the top and bottom */
+    font-size: 18px;
+    border-radius: 10px;
+    z-index: 500;  /* Ensures it stays on top of other elements */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);  /* Adds a slight shadow for better visibility */
+  }
+
+  /* Style for the content inside the top menu */
+  #top-menu p {
+    text-decoration: none;
+    padding: 0 10px ;
+    font-size: 10px;
+    font-weight: 500;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Change color of links when hovered */
+  #top-menu button:hover {
+    background: #5482be;
+    color: wheat;
+    transition: 0.3S ease-in-out;
+  }
+
+  #top-menu button{
+    color: #5482be;
+    margin-right: 8px;
+    border-radius: 5px;
+    padding: 5px;
+    background: transparent;
+    border: solid 1px #5482be;
+  }
+
+  /* The Modal (background) */
+.password-popup-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 100; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.password-popup-modal-content {
+    backdrop-filter: blur(15px);
+    background-color: #fff;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 30%; /* Could be more or less, depending on screen size */
+    text-align: center;
+}
+
+/* Close button */
+.password-popup-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.password-popup-close:hover,
+.password-popup-close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+input#password-popup-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    box-sizing: border-box;
+}
+
+button#password-popup-submit-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button#password-popup-submit-btn:hover {
+    background-color: #45a049;
+}

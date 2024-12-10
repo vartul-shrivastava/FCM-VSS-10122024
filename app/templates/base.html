@@ -1,0 +1,372 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="initial-scale=1.0">
+        <title>FCM-VSS | AI-enabled FCM Management Toolkit with AES-GCM Encryption t</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+
+    </head>
+    <body>
+        
+        <!-- Top Menu for Intervention, Influence, or Fixation -->
+<!-- Top Menu for Action Selection -->
+<!-- Combined Menu with Node Names and Action Options -->
+<div id="top-menu">
+    
+    <button id="increase-btn">Increase height by 10%</button>
+    <button id="decrease-btn">Reduce height by 10%</button>
+    <button id="photo">Capture FCM Network image</button>
+    <div class="undermenu">
+        <div id="checkpoint-name-display" style="font-weight: bold; margin: 10px; color: red;">
+            Select Checkpoint
+        </div>        
+    </div>
+    <div id="ai-model-selection">
+        <select id="ollama-model-dropdown">
+            <!-- Models will be populated dynamically -->
+        </select>
+        <button id="set-model-btn">Set Model</button>
+        <p id="model-status" style="color: green;"></p>
+    </div>
+
+</div>
+
+        <!-- Top Menu Bar -->
+        <nav>
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="FCM-VSS" style="width: 8rem; margin-top: 2rem;">
+            <ul class="menu">
+                <li>
+                    <div class="tooltip">
+                        <button id="save-btn" onclick="saveProject()">Save Project</button>
+                        <span class="tooltiptext">Shortcut: Ctrl + S</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="tooltip">
+                        <button id="load-btn" onclick="document.getElementById('loadProjectInput').click()">Load Project</button>
+                        <span class="tooltiptext">Shortcut: Ctrl + L</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="tooltip">
+                        <button id="add-node-btn" onclick="addNode()">Add Node</button>
+                        <span class="tooltiptext">Shortcut: Ctrl + Q</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="tooltip">
+                        <button id="add-edge-btn" onclick="addEdge()">Add Edge</button>
+                        <span class="tooltiptext">Shortcut: Ctrl + E</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="tooltip">
+                        <button id="checkpoint-btn" onclick="saveCheckpoint()">Save as Checkpoint</button>
+                        <span class="tooltiptext">Save checkpoint</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="tooltip">
+                        <button onclick="exportSnapshot()">Export Snapshot</button>
+                        <span class="tooltiptext">Export current project snapshot</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="tooltip">
+                        <button onclick="document.getElementById('importSnapshotInput').click()">Import Snapshot</button>
+                    </div>
+                </li>
+                <li>
+                    <div class="tooltip">
+                        <button id="ai-summarize-btn" onclick="sendFCMData()">AI-Summarize FCM Config</button>
+                    </div>
+                </li>
+</div>
+
+            </ul>
+            <p style="padding: 20px; font-size: 13px;">Developed by<strong>
+                <a href="https://orcid.org/0009-0006-4088-6901"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Vartul Shrivastava 
+            </strong>and<strong>
+                <a href="https://orcid.org/0000-0003-0722-2266"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Dr. Shekhar Shukla
+            </strong> for research purposes with ❤️</p>
+    
+        </nav>
+
+        <!-- Hidden inputs for loading and importing files -->
+        <input type="file" id="loadProjectInput" style="display:none" accept=".fcmvss" onchange="loadProject(this.files)">
+        <input type="file" id="importSnapshotInput" style="display:none" accept=".snpfcmvss" onchange="importSnapshot(this.files)">
+        <div id="password-popup-modal" class="password-popup-modal">
+            <div class="password-popup-modal-content">
+                <span class="password-popup-close">&times;</span>
+                <h5>The current session key cannot decrypt AES-GCM encrypted file. Enter Decryption Password of this file for Decryption</h5>
+                <input type="password" id="password-popup-input" placeholder="Enter password here">
+                <button id="password-popup-submit-btn">Submit</button>
+            </div>
+        </div>
+        <div id="summary-overlay" class="overlay" style="display: none;">
+            <div class="overlay-content" style="background-color: white; color: black; padding: 20px; width: 70%; height: 70%; margin: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); position: relative;">
+                <button id="close-overlay-btn" class="close-btn" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 30px; font-weight: bold; cursor: pointer;">&times;</button>
+                <h2 style="text-align: center; font-size: 18px; margin-bottom: 20px;">FCM Summary (This can be inaccurate due to imperative nature of LLMs, please practice caution while inferring)</h2>
+                <div id="summary-text-overlay" style="font-family: Arial, sans-serif; font-size: 15px; white-space: pre-wrap; overflow-y: auto; height: calc(100% - 60px);">
+                    <!-- Summary content will be injected here -->
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="container">
+            <!-- Left Panel for controls -->
+            <div class="left-panel">
+                    <div id="password-overlay" class="password-modal">
+                        <div class="modal-content">
+                            <div class="password-left">
+                                <!-- Left Section: Application logo and Password input -->
+                                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="FCM-VSS" class="logo">
+                                <p class="description">
+                                    FCM-VSS uses AES-GCM encryption mechanism for importing and exporting FCM snapshots and projects. Please <strong>set a secure passkey</strong> for conducting session.
+                                </p>
+                                <input type="password" id="password-input" placeholder="Please set a session-key to continue.." class="password-input" required>
+                                <button id="password-submit-btn" class="submit-btn">Proceed to FCM-VSS</button>
+                                <div id="open-source-info">
+                                    <p>This tool is an <strong>open-source</strong> solution, designed for easy FCM modeling with secure project management and real-time simulation.</p>
+                                    <p>Developed by<strong>
+                                        <a href="https://orcid.org/0009-0006-4088-6901"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Vartul Shrivastava 
+                                    </strong>and<strong>
+                                        <a href="https://orcid.org/0000-0003-0722-2266"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Dr. Shekhar Shukla
+                                    </strong> for research purposes with ❤️</p>
+                                    
+                                </div>
+                            </div>
+                    
+                            <div class="password-right">
+                                <!-- Right Section: AI readiness and Features -->
+                                <div id="ai-readiness">
+                                    <button class="ai-readiness-button" onclick="checkAIReadiness()">Click to verify AI-enabled dependencies</button>
+                                    <p style="margin-top: 10px;">Kindly install Ollama in Python Environment to leverage AI-based summarization of FCM configuration</p>
+                                    <p style="margin-top: 10px;" id="ai-status">...</p>
+                                    
+                                    <div id="model-list-container" class="scrollable-container">
+                                        <!-- Model buttons will be inserted here dynamically -->
+                                    </div>
+                                </div>
+
+                                
+                    
+                                <div id="tool-features">
+                                    <ul>
+                                        <li>Secure AES-GCM encryption for project data management</li>
+                                        <li>Support for multiple inference mechanisms (Kosko, Modified Kosko, and Rescaled)</li>
+                                        <li>Dynamic adjustment of transfer functions (Sigmoid, Tanh, Bivalent, Trivalent)</li>
+                                        <li>Customizable activation values: Random, Zero, Full, Median, and Manual</li>
+                                        <li>Interactive real-time feedback for node value adjustments</li>
+                                        <li>Checkpoint system for saving and restoring states</li>
+                                    </ul>
+                                </div>
+                                <div id="image-container">
+                                    <span>FCM-VSS is powered by</span>
+                                    <img src="{{ url_for('static', filename='images/ollama.png') }}" alt="Image 1">
+                                    <img src="{{ url_for('static', filename='images/html.png') }}" alt="Image 2">
+                                    <img src="{{ url_for('static', filename='images/css.png') }}" alt="Image 3">
+                                    <img src="{{ url_for('static', filename='images/js.png') }}" alt="Image 4">
+                                    <img src="{{ url_for('static', filename='images/python.png') }}" alt="Image 4">
+                                    <img src="{{ url_for('static', filename='images/flask.svg') }}" alt="Image 4">
+                                </div>
+                                
+                    
+
+                            </div>
+                        </div>
+                    </div>
+                    
+            </div>
+            <div id="loading-overlay" style="display: none;">
+                <div class="loading-content">
+                    <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." />
+                    <p>Loading... Please wait while the content is being summarized.</p>
+                </div>
+            </div>
+            <!-- FCM Network Maker Section -->
+            <div id="network-container">
+ 
+                <canvas id="network-canvas"></canvas>
+
+                <button id="remove-edge-btn" style="display:none; position: absolute;">Remove Edge</button>
+
+                <!-- Modal for collecting input (used for edge values or renaming) -->
+                <div id="input-modal" class="modal" style="display:none;">
+                    <div class="modal-content">
+                        <label id="modal-label"></label>
+                        <input type="text" id="modal-input">
+                        <button id="modal-ok-btn">OK</button>
+                        <button id="modal-cancel-btn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel for Checkpoint Tray and Timeline Tray -->
+            <div class="right-panel">
+                <div id="checkpoint-tray-container">
+                    <div class="checkpoint-text">
+                        <h3>Checkpoint Tray</h2>
+                        <p>All the saved checkpoints will appear here with date and time of saving</p>
+                    </div>
+
+                    <ul id="checkpoint-tray" class="vertical-menu">
+                    </ul>
+                    <!-- Model selection dropdown and submit button -->
+
+                </div>
+                
+                <div id="timeline-tray">
+                    <h2>Timeline Tray</h2>
+                    <p>For reference, all the changes that you make in FCM network will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Node statistics table below the canvas -->
+<!-- Node statistics table below the canvas -->
+<div id="node-stats-container">
+    <p style="margin: 0 auto; padding: 0 25%;"><strong>Edge Creation: </strong> create a directed edge, select the driving node (which will turn blue), and then seelct the receiving node (which will turn purple). Then click 'Add Node' or Ctrl + E to give a value and click ok.</p>
+    <p style="margin: 25px auto; padding: 0 25%;"><strong>Node Statistics Table</strong> provides the number of indegree (incoming connections), outdegree (outgoing connections), centrality (importance in the network), and their respective values, indicating the type of node (e.g., driver, intermediary, receiver or NA).</p>
+    <button onclick="downloadTableAsCSV('node-stats-table')">Download Node Stats as CSV</button>
+    <div class="ns-container">
+        <table id="node-stats-table" border="1">
+            <thead>
+                <tr>
+                    <th>Node</th>
+                    <th>Indegree</th>
+                    <th>Indegree Value</th>
+                    <th>Outdegree</th>
+                    <th>Outdegree Value</th>
+                    <th>Centrality</th>
+                    <th>Centrality Value</th>
+                    <th>Type</th> <!-- New column for Type -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+        
+    </div>
+
+    <p style="margin: 10px auto; padding: 0 25%;"><strong> The Weight Matrix</strong> displays the strength of influence between nodes, with each cell representing the weight of the connection from one node to another, highlighting the directional impact within the Fuzzy Cognitive Map.</p>
+    <button onclick="downloadTableAsCSV('weight-matrix-table')">Download Weight Matrix as CSV</button>
+    <div class="wm-container">
+        <table id="weight-matrix-table" border="1">
+            <thead>
+                <tr>
+                    <th>From / To</th>
+                    <!-- Dynamically insert column headers here -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically inserted here -->
+            </tbody>
+        </table>
+        
+    </div>
+    
+</div>
+
+        <div class="koskograph">
+            <canvas id="kosko-line-chart" width="400" height="200"></canvas>    
+        </div>
+        <div class="kosko-table-container">
+            <h2>Kosko Simulation</h2>
+        <p style="margin: 0 auto; padding: 2% 25%;">Select the configuration for Kosko Analysis from simulation menu on bottom of the panel. The line chart represents the activation values of each concept at an iteration (hover on the chart to see). </p>
+            <table id="kosko-results-table" border="1">
+                <thead>
+                    <tr>
+                        <th>Iteration</th>
+                        <!-- Columns for each node will be added dynamically -->
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="fixation-table-container">
+            <h2 style="margin: 10px auto;">Static Node(s) Convergence Analysis</h2>
+            <p style="margin: 0 auto; padding: 2% 25%;"><strong>(Before performing What-if analysis, run Kosko simulation first)</strong>Nodes that you have selected as static concepts have now undergone Kosko simulation (The bar chart represents the difference in stable values achieved at static node convergence and original kosko convergence)</p>
+            <table id="fixation-results-table" border="1" cellspacing="0" cellpadding="5">
+                <thead>
+                    <tr>
+                        <th>Iteration</th>
+                        <!-- Node names will be populated dynamically -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Simulation results will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+            <div class="diff-chart">
+                <canvas id="difference-bar-chart" width="400" height="200"></canvas>
+            </div>
+         
+<!-- Fixed Bottom Menu -->
+<!-- Fixed Bottom Menu -->
+<div id="bottom-menu">
+    <div class="dropdown-container">
+        <div class="dropdown-item">
+            <label for="inference-mechanism">Inference Mechanism:</label>
+            <select id="inference-mechanism">
+                <option value="kosko">Original Kosko</option>
+                <option value="mkosko">Modified Kosko</option>
+                <option value="rescaled">Rescaled Kosko</option>
+            </select>
+        </div>
+    
+        <div class="dropdown-item">
+            <label for="transfer-function">Transfer Function:</label>
+            <select id="transfer-function">
+                <option value="sigmoid">Sigmoid [0,1]</option>
+                <option value="tanh">Tanh [-1,1]</option>
+                <option value="bivalent">Bivalent</option>
+                <option value="trivalent">Trivalent</option>
+            </select>
+        </div>
+    
+        <div class="dropdown-item">
+            <label for="activation-value">Activation Value:</label>
+            <select id="activation-value">
+                <option value="median">Median (0.5)</option>
+                <option value="random">Random</option>
+                <option value="zero">Zero</option>
+                <option value="full">Full (1.0)</option>
+                <option value="manual">Manual</option>
+            </select>
+        </div>
+</div>
+    
+    <!-- Additional buttons for evaluate and initiate -->
+    <div class="button-container">
+        <button class="green-button" onclick="fixation()">Evaluate What-if Case</button>
+        <button class="green-button" onclick="kosko()">Initiate Classic Kosko</button>
+    </div>
+    
+    <!-- Right container: Scrollable Row for Node Activations and Tweaks -->
+    <div id="scrollable-row-container" class="scrollable-row">
+        <!-- Node fields will be populated here -->
+        <div id="node-fields-container" class="node-fields">
+            <!-- Node fields dynamically populated -->
+        </div>
+    </div>
+</div>   
+    </div>
+        
+    </div>
+    <div id="popup"><h1>Warning: Screen size is below 500px!</h1>
+                    <p>For ideal experience in FCM-VSS, please shift to device which supports 600px x 600px or above screen resolution. Or else maximize your screen if it is resized.</p>
+    </div>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    </body>
+    </html>
