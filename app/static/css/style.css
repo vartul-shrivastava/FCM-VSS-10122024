@@ -237,6 +237,8 @@ canvas {
     color: #333; /* Darker text color */
 }
 
+
+
 /* Highlight the last row as converged */
 #kosko-results-table tbody tr:last-child {
     background-color: #FFEB3B; /* Yellow background for convergence */
@@ -277,8 +279,13 @@ canvas {
     font-size: 14px;
 }
 
-.diff-chart{
-    margin-bottom: 200px;
+.regards{
+    text-align: center;
+    margin: 0 auto;
+    padding-left: 200px;
+    padding-right: 200px;
+    padding-top: 0px;
+    padding-bottom: 150px;
 }
 
 #table-container th, #fixation-table th {
@@ -595,6 +602,33 @@ nav {
 
 .chat-send-btn:hover {
     background-color: rgba(0, 123, 255, 0.9);
+}
+
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 500px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+#prompt-textarea {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+
+#save-prompt-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+#close-modal-btn {
+    background-color: #dc3545;
+    color: white;
 }
 
 
@@ -1242,11 +1276,20 @@ select {
     margin-top: 15px;
 }
 
+.nested{
+    display: block;
+}
+
+#promptTextArea {
+    padding: 10px;
+}
+
 .green-button {
     background-color: transparent; /* Green background */
     border: solid 1px #5482be;
     color: #5482be;
     border-radius: 4px;
+    margin: 0 15px;
     cursor: pointer;
 }
 
@@ -1728,3 +1771,4 @@ button#password-popup-submit-btn {
 button#password-popup-submit-btn:hover {
     background-color: #45a049;
 }
+

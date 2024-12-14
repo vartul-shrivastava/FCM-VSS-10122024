@@ -9,7 +9,6 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
-
     </head>
     <body>
         
@@ -86,6 +85,11 @@
                         <button id="ai-summarize-btn" onclick="sendFCMData()">AI-Summarize FCM Config</button>
                     </div>
                 </li>
+                <li>
+                    <div class="tooltip">
+                        <button id="modify-prompt-btn">Modify Prompt</button>
+                    </div>
+                </li>
 </div>
 
             </ul>
@@ -96,7 +100,27 @@
             </strong> for research purposes with ❤️</p>
     
         </nav>
+        <div id="modify-prompt-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="nested" style="width: 400px;text-align: left;">
+                    <h3 style="color: #5482be;">Edit Summarization Prompt</h3>
+                    <p style="padding: 10px; font-size: 15px;">
+                        Ensure your prompt includes the placeholders: 
+                        <strong>{driver_summary}</strong>, <strong>{intermediate_summary}</strong>, <strong>{receiver_summary}</strong>, 
+                        <strong>{last_kosko_row}</strong>, <strong>{fixed_node_values}</strong> and <strong>{last_fixation_row}</strong>. These placeholders dynamically reflect the context 
+                        of the FCM results displayed on your dashboard and organize nodes into driver, intermediate, and receiver categories for better readability.
+                        </p>
+                        
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" style="width: 80%; margin: 0 auto;" alt="FCM-VSS" class="logo">
+                </div>
 
+                <textarea id="promptTextArea" rows="20" cols="80" placeholder="Your prompt will appear here..."></textarea>
+                <br>
+                <button onclick="resetPrompt()" class="green-button">Reset Prompt</button>
+                <button id="save-prompt-btn" class="green-button">Save Prompt</button>
+                <button id="close-modal-btn" class="green-button">Close</button>
+            </div>
+        </div>
         <!-- Hidden inputs for loading and importing files -->
         <input type="file" id="loadProjectInput" style="display:none" accept=".fcmvss" onchange="loadProject(this.files)">
         <input type="file" id="importSnapshotInput" style="display:none" accept=".snpfcmvss" onchange="importSnapshot(this.files)">
@@ -111,7 +135,7 @@
         <div id="summary-overlay" class="overlay" style="display: none;">
             <div class="overlay-content" style="background-color: white; color: black; padding: 20px; width: 70%; height: 70%; margin: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); position: relative;">
                 <button id="close-overlay-btn" class="close-btn" style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 30px; font-weight: bold; cursor: pointer;">&times;</button>
-                <h2 style="text-align: center; font-size: 18px; margin-bottom: 20px;">FCM Summary (This can be inaccurate due to imperative nature of LLMs, please practice caution while inferring)</h2>
+                <h2 style="text-align: center; font-size: 18px; margin-bottom: 20px;">AI-based FCM Summary (Try modifiying prompt and changing LLM for more personalized and accurate summarization)</h2>
                 <div id="summary-text-overlay" style="font-family: Arial, sans-serif; font-size: 15px; white-space: pre-wrap; overflow-y: auto; height: calc(100% - 60px);">
                     <!-- Summary content will be injected here -->
                 </div>
@@ -186,7 +210,7 @@
             </div>
             <div id="loading-overlay" style="display: none;">
                 <div class="loading-content">
-                    <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading..." />
+                    <img src="{{ url_for('static', filename='images/loading.gif') }}" alt="Loading..." />
                     <p>Loading... Please wait while the content is being summarized.</p>
                 </div>
             </div>
@@ -232,7 +256,7 @@
         <!-- Node statistics table below the canvas -->
 <!-- Node statistics table below the canvas -->
 <div id="node-stats-container">
-    <p style="margin: 0 auto; padding: 0 25%;"><strong>Edge Creation: </strong> create a directed edge, select the driving node (which will turn blue), and then seelct the receiving node (which will turn purple). Then click 'Add Node' or Ctrl + E to give a value and click ok.</p>
+    <p style="margin: 0 auto; padding: 0 25%;"><strong>Edge Creation: </strong> To create a directed edge, select the driving node (which will turn blue), and then select the receiving node (which will turn purple). Thereafter click 'Add Node' or 'Ctrl + E' to give a value in between -1 and 1 inclusively.</p>
     <p style="margin: 25px auto; padding: 0 25%;"><strong>Node Statistics Table</strong> provides the number of indegree (incoming connections), outdegree (outgoing connections), centrality (importance in the network), and their respective values, indicating the type of node (e.g., driver, intermediary, receiver or NA).</p>
     <button onclick="downloadTableAsCSV('node-stats-table')">Download Node Stats as CSV</button>
     <div class="ns-container">
@@ -255,7 +279,6 @@
         </table>
         
     </div>
-
     <p style="margin: 10px auto; padding: 0 25%;"><strong> The Weight Matrix</strong> displays the strength of influence between nodes, with each cell representing the weight of the connection from one node to another, highlighting the directional impact within the Fuzzy Cognitive Map.</p>
     <button onclick="downloadTableAsCSV('weight-matrix-table')">Download Weight Matrix as CSV</button>
     <div class="wm-container">
@@ -280,7 +303,7 @@
         </div>
         <div class="kosko-table-container">
             <h2>Kosko Simulation</h2>
-        <p style="margin: 0 auto; padding: 2% 25%;">Select the configuration for Kosko Analysis from simulation menu on bottom of the panel. The line chart represents the activation values of each concept at an iteration (hover on the chart to see). </p>
+        <p style="margin: 0 auto;">Select the configuration for Kosko Analysis from simulation menu on bottom of the panel. The line chart represents the activation values of each concept at an iteration (hover on the chart to see). </p>
             <table id="kosko-results-table" border="1">
                 <thead>
                     <tr>
@@ -294,7 +317,7 @@
         </div>
         <div class="fixation-table-container">
             <h2 style="margin: 10px auto;">Static Node(s) Convergence Analysis</h2>
-            <p style="margin: 0 auto; padding: 2% 25%;"><strong>(Before performing What-if analysis, run Kosko simulation first)</strong>Nodes that you have selected as static concepts have now undergone Kosko simulation (The bar chart represents the difference in stable values achieved at static node convergence and original kosko convergence)</p>
+            <p style="margin: 0 auto;"><strong>(Before performing What-if analysis, run Kosko simulation first)</strong>Nodes that you have selected as static concepts have now undergone Kosko simulation (The bar chart represents the difference in stable values achieved at static node convergence and original kosko convergence)</p>
             <table id="fixation-results-table" border="1" cellspacing="0" cellpadding="5">
                 <thead>
                     <tr>
@@ -311,6 +334,13 @@
             <div class="diff-chart">
                 <canvas id="difference-bar-chart" width="400" height="200"></canvas>
             </div>
+            <div class="regards">
+                <p>
+                    <strong>Please ensure</strong> that the configurations for <em>Kosko Simulation</em> and <em>What-if Case Simulation</em> are identical. 
+                    <strong>Discrepancies</strong> in the setup may lead to <em>unexpected differences</em> in the output values.
+                </p>
+            </div>
+            
          
 <!-- Fixed Bottom Menu -->
 <!-- Fixed Bottom Menu -->
@@ -349,6 +379,7 @@
     
     <!-- Additional buttons for evaluate and initiate -->
     <div class="button-container">
+        
         <button class="green-button" onclick="fixation()">Evaluate What-if Case</button>
         <button class="green-button" onclick="kosko()">Initiate Classic Kosko</button>
     </div>
@@ -369,4 +400,4 @@
     </div>
         <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     </body>
-    </html>
+</html>

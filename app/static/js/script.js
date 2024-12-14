@@ -95,30 +95,6 @@ function updateCheckpointState() {
 
 
 
-// Add event listener for keydown to handle shortcuts
-document.addEventListener('keydown', function (event) {
-    // Make sure we detect only certain combinations
-    if (event.ctrlKey && !event.altKey && !event.shiftKey) {
-        switch (event.key.toLowerCase()) {
-            case 's':  // Ctrl + S for "Save Project"
-                event.preventDefault();  // Prevent browser's default Ctrl + S save behavior
-                triggerButton('save-btn');
-                break;
-            case 'l':  // Ctrl + L for "Load Project"
-                event.preventDefault();
-                triggerButton('load-btn');
-                break;
-            case 'q':  // Ctrl + X for "Add Node"
-                event.preventDefault();
-                triggerButton('add-node-btn');
-                break;
-            case 'e':  // Ctrl + E for "Add Edge"
-                event.preventDefault();
-                triggerButton('add-edge-btn');
-                break;
-        }
-    }
-});
 
 
 
@@ -1157,7 +1133,89 @@ renameBtn.addEventListener('click', () => {
     });
 }
 
+function promptModify() {
+    const modifyPromptModal = document.getElementById('modify-prompt-modal');
+    modifyPromptModal.style.display = 'flex';
 
+    // Fetch the current prompt content and set it in the textarea
+    fetch('/get_current_prompt')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('promptTextArea').value = data.prompt || '';
+        })
+        .catch(err => console.error('Error fetching current prompt:', err));
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modifyPromptBtn = document.getElementById('modify-prompt-btn');
+    const modifyPromptModal = document.getElementById('modify-prompt-modal');
+    const promptTextArea = document.getElementById('promptTextArea');
+    const savePromptBtn = document.getElementById('save-prompt-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+
+    // Open modal
+    modifyPromptBtn.addEventListener('click', () => {
+        modifyPromptModal.style.display = 'flex';
+        // Fetch current prompt content and set in textarea
+        fetch('/get_current_prompt')
+            .then(response => response.json())
+            .then(data => {
+                promptTextArea.value = data.prompt || '';
+            })
+            .catch(err => console.error(err));
+    });
+
+    // Close modal
+    closeModalBtn.addEventListener('click', () => {
+        modifyPromptModal.style.display = 'none';
+    });
+
+    // Save updated prompt
+    savePromptBtn.addEventListener('click', () => {
+        const updatedPrompt = promptTextArea.value;
+        fetch('/update_prompt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: updatedPrompt }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert('Prompt updated successfully!');
+                modifyPromptModal.style.display = 'none';
+            })
+            .catch(err => console.error(err));
+    });
+});
+
+function resetPrompt() {
+    fetch('/reset_prompt', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Populate the textarea with the default prompt
+            document.getElementById('promptTextArea').value = data.default_prompt;
+            alert('Prompt reset to default successfully!');
+        } else {
+            alert('Failed to reset the prompt: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error resetting prompt:', error);
+    });
+}
+
+// Load the current prompt into the textarea on page load
+window.onload = function() {
+    fetch('/get_current_prompt', { method: 'GET' })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('promptTextArea').value = data.prompt;
+    })
+    .catch(error => console.error('Error loading prompt:', error));
+};
 
 
 document.addEventListener('mousemove', (e) => {
@@ -1660,19 +1718,19 @@ function triggerButton(buttonId) {
 
 // Add event listener for keydown to handle shortcuts
 document.addEventListener('keydown', function (event) {
-    // Example: Ctrl + S for "Save Project"
+    // Example: Alt + S for "Save Project"
     if (event.altKey && event.key === 's') {
         event.preventDefault(); // Prevent the default browser save behavior
         saveProject()
     }
 
-    // Example: Ctrl + L for "Load Project"
-    if (event.altKey && event.key === 'o') {
+    // Example: Alt + L for "Load Project"
+    if (event.altKey && event.key === 'p') {
         event.preventDefault();
         loadProject()
     }
 
-    // Example: Ctrl + N for "Add Node"
+    // Example: Alt + N for "Add Node"
     if (event.altKey && event.key === 'n') {
         event.preventDefault();
         addNode()
@@ -1683,6 +1741,26 @@ document.addEventListener('keydown', function (event) {
         event.preventDefault();
         addEdge()
     }
+
+    // Example: Ctrl + E for "Kosko Simulation"
+    if (event.altKey && event.key === 'k') {
+        event.preventDefault();
+        kosko()
+    }
+
+    // Example: Ctrl + E for "Kosko Simulation"
+    if (event.altKey && event.key === 'f') {
+        event.preventDefault();
+        fixation();
+    }
+
+    // Example: Ctrl + E for "Kosko Simulation"
+    if (event.altKey && event.key === 'w') {
+        event.preventDefault();
+        sendFCMData();
+    }
+
+
 });
 
 
@@ -1766,11 +1844,11 @@ function updateNodeStats() {
         edges.forEach(edge => {
             if (edge.to.id === node.id) {
                 indegree++;
-                indegreeValueSum += parseFloat(edge.value);
+                indegreeValueSum += parseFloat(Math.abs(edge.value));
             }
             if (edge.from.id === node.id) {
                 outdegree++;
-                outdegreeValueSum += parseFloat(edge.value);
+                outdegreeValueSum += parseFloat(Math.abs(edge.value));
             }
         });
 
@@ -2256,7 +2334,7 @@ function generateLinePlot(results, nodeNames) {
                     borderWidth: 1,
                     callbacks: {
                         label: function (tooltipItem) {
-                            return `${tooltipItem.dataset.label}: ${tooltipItem.raw.toFixed(2)}`;
+                            return `${tooltipItem.dataset.label}: ${tooltipItem.raw.toFixed(4)}`;
                         }
                     }
                 }
@@ -2384,8 +2462,8 @@ window.onload = function () {
 };
 
 function fixation() {
+ 
     console.log('Initiating fixation evaluation with tweak values...');
-
     // Get the weight matrix and node names
     const { matrix: weightMatrix, nodeNames } = getWeightMatrix();
     console.log('Weight Matrix:', weightMatrix);
@@ -2410,6 +2488,27 @@ function fixation() {
 
     console.log('Fixed Nodes:', fixedNodes);
     console.log('Fixed Node Values:', fixedNodeValues);
+    const data = {
+        fixedNodes: fixedNodes,
+        fixedNodeValues: fixedNodeValues,
+    };
+
+    // Send the data to Flask using fetch
+    fetch('/push_fixed_nodes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data), // Convert the data to JSON string
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+    
 
     // Allow the user to choose the transfer function, activation type, and inference mechanism
     const transferFunctionType = document.getElementById('transfer-function').value;
@@ -2591,30 +2690,34 @@ function fixation() {
         }
         return maxDiff <= convergenceThreshold;
     }
-
     // Main simulation loop
     for (let i = 0; i < iterations; i++) {
         if (!convergenceStatus) {
             // Perform inference using the selected inference mechanism
             let inferredState = inferenceFunction(currentState, weightMatrix);
-            currentState = inferredState.map(transferFunction);  // Apply the chosen transfer function
-
+    
+            // Apply the transfer function to the inferred state
+            inferredState = inferredState.map(transferFunction);
+    
             // Fix activation values of nodes with non-zero tweak values
             fixedNodes.forEach(node => {
                 const nodeIndex = nodeNames.indexOf(node);
                 if (nodeIndex !== -1) {
                     // Preserve the activation value to the tweak value
-                    currentState[nodeIndex] = fixedNodeValues[node];
+                    inferredState[nodeIndex] = fixedNodeValues[node];
                 }
             });
-
+    
+            // Update the current state with the fixed values
+            currentState = inferredState.slice();
+    
             // Record the current state
             results.push(currentState.slice());
             console.log(currentState.slice());
-
+    
             // Increment step count
             stepCount++;
-
+    
             // Check for convergence
             convergenceStatus = checkConvergence(results);
         } else {
@@ -2633,7 +2736,7 @@ function fixation() {
 }
 
 // Declare a global chart variable to handle updating/destroying the chart
-let differenceBarChart;
+let differenceBarChart = null;
 
 function updateFixationResultsTable(results, nodeNames) {
     const table = document.getElementById('fixation-results-table');
@@ -2665,8 +2768,8 @@ function updateFixationResultsTable(results, nodeNames) {
         });
 
         tableBody.appendChild(row);
+        
     });
-
     // Step 1: Get the last row of the Kosko table (converged row)
     const koskoTable = document.getElementById('kosko-results-table');
     const koskoLastRow = koskoTable.querySelector('tbody tr:last-child');
@@ -2739,56 +2842,57 @@ function isAnyNodeTweaked() {
     return isTweaked;
 }
 
-// Function to render the difference row as a bar chart
 function renderDifferenceBarChart(differenceValues, nodeNames) {
-    // Check if any node is tweaked; if not, skip rendering the bar chart
-    if (!isAnyNodeTweaked()) {
-        console.log('No nodes are tweaked, skipping chart rendering.');
-        return;
-    }
+    console.log("Rendering bar chart with updated values...");
+    console.log("Difference Values:", differenceValues);
+    console.log("Node Names:", nodeNames);
 
     const ctx = document.getElementById('difference-bar-chart').getContext('2d');
 
-    // Destroy the previous chart if it exists
+    // Destroy the previous chart instance if it exists
     if (differenceBarChart) {
         differenceBarChart.destroy();
+        console.log("Previous chart instance destroyed.");
     }
 
-    // Create gradient for the bars
+    // Create a gradient for the chart bars
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, 'rgba(255, 99, 132, 0.7)');
     gradient.addColorStop(1, 'rgba(54, 162, 235, 0.7)');
 
-    // Create a new bar chart with a grid in the background
+    // Round difference values for better visual clarity
+    const roundedDifferenceValues = differenceValues.map(value => parseFloat(value.toFixed(3)));
+
+    // Create a new chart instance
     differenceBarChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: nodeNames,  // Use the node names as labels for the chart
+            labels: nodeNames, // Use the updated node names
             datasets: [{
                 label: 'Difference (Fixation - Kosko)',
-                data: differenceValues,  // The difference values calculated
-                backgroundColor: gradient,  // Apply gradient to fill
-                borderColor: 'rgba(54, 162, 235, 1)',  // Dark blue border
+                data: roundedDifferenceValues, // Use the updated difference values
+                backgroundColor: gradient,
+                borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 2,
-                hoverBackgroundColor: 'rgba(255, 206, 86, 0.8)',  // Hover effect color
-                hoverBorderColor: 'rgba(255, 159, 64, 1)',  // Hover border color
+                hoverBackgroundColor: 'rgba(255, 206, 86, 0.8)',
+                hoverBorderColor: 'rgba(255, 159, 64, 1)',
             }]
         },
         options: {
             responsive: true,
             scales: {
                 y: {
-                    beginAtZero: true,  // Ensure y-axis starts at 0
+                    beginAtZero: true,
                     grid: {
                         display: true,
-                        color: 'rgba(201, 203, 207, 0.5)',  // Light grey gridlines for y-axis
+                        color: 'rgba(201, 203, 207, 0.5)',
                         lineWidth: 1,
                     }
                 },
                 x: {
                     grid: {
-                        display: true,  // Display gridlines for x-axis as well
-                        color: 'rgba(201, 203, 207, 0.5)',  // Light grey gridlines for x-axis
+                        display: true,
+                        color: 'rgba(201, 203, 207, 0.5)',
                         lineWidth: 1,
                     }
                 }
@@ -2801,31 +2905,34 @@ function renderDifferenceBarChart(differenceValues, nodeNames) {
                         size: 20,
                         weight: 'bold',
                     },
-                    color: '#4B0082',  // Vibrant title color
+                    color: '#4B0082',
                     padding: 20,
                 },
                 legend: {
                     display: true,
                     labels: {
-                        color: '#333',  // Legend label color
+                        color: '#333',
                     }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0,0,0,0.7)',  // Dark background for tooltips
-                    titleColor: '#ffffff',  // White text for tooltip title
-                    bodyColor: '#ffffff',  // White text for tooltip body
+                    backgroundColor: 'rgba(0,0,0,0.7)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
                 }
             },
             animation: {
-                duration: 1500,  // Slow animation for chart rendering
-                easing: 'easeOutBounce'  // Bounce effect for visual interest
+                duration: 1500,
+                easing: 'easeOutBounce',
             },
             hover: {
-                animationDuration: 1000,  // Smooth hover animation
+                animationDuration: 1000,
             }
         }
     });
+
+    console.log("Bar chart rendered successfully.");
 }
+
 
 
 function checkAIReadiness() {
