@@ -119,9 +119,9 @@ Discuss the receiver nodes and their dependencies based on indegree and centrali
 Present the last row of Kosko simulation sorted in descending order of values:
 {last_kosko_row}
 
-5. Fixation Impact Analysis:
-Detail the non-zero values impacted by fixation and their respective results:
-- Adjusted Nodes and Values: {fixed_node_values}
+5. What-if Analysis:
+Discuss the impact of fixation and their respective results, and how each node is impacted because of tweaked nodes:
+- Tweaked Nodes and Values: {fixed_node_values}
 - Impacted Nodes and Values: {last_fixation_row}
 
 Explain the implications of these results in terms of beneficial (positive differences) or adverse (negative differences) impacts.

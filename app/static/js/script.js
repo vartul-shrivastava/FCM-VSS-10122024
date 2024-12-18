@@ -14,6 +14,56 @@ let isDragging = false;
 let dragNode = null;
 let offsetX = 0;
 let offsetY = 0;
+// Global variables
+let lambda = 1;
+let kosko_iterations = 1000;
+let convergence_threshold = 0.005;
+
+// Open and close modal functionality
+const openSettingsBtn = document.getElementById('open-settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const closeSettingsBtn = document.getElementById('close-settings-btn');
+const saveSettingsBtn = document.getElementById('save-settings-btn');
+
+// Inputs
+const lambdaInput = document.getElementById('lambda-input');
+const koskoIterationsInput = document.getElementById('kosko-iterations-input');
+const convergenceThresholdInput = document.getElementById('convergence-threshold-input');
+
+// Open modal
+openSettingsBtn.addEventListener('click', () => {
+    settingsModal.style.display = 'flex';
+});
+
+// Close modal
+closeSettingsBtn.addEventListener('click', () => {
+    settingsModal.style.display = 'none';
+});
+
+// Save values and set global variables
+saveSettingsBtn.addEventListener('click', () => {
+    const lambdaValue = parseFloat(lambdaInput.value);
+    const koskoIterationsValue = parseInt(koskoIterationsInput.value);
+    const convergenceThresholdValue = parseFloat(convergenceThresholdInput.value);
+
+    if (!isNaN(lambdaValue) && !isNaN(koskoIterationsValue) && koskoIterationsValue > 0 && !isNaN(convergenceThresholdValue)) {
+        lambda = lambdaValue;
+        kosko_iterations = koskoIterationsValue;
+        convergence_threshold = convergenceThresholdValue;
+
+        alert(`Lambda set to: ${lambda}\nKosko Iterations set to: ${kosko_iterations}\nConvergence Threshold set to: ${convergence_threshold}`);
+        settingsModal.style.display = 'none';
+    } else {
+        alert("Please enter valid values for Lambda, Kosko Iterations, and Convergence Threshold.");
+    }
+});
+
+// Close modal when clicking outside of it
+window.addEventListener('click', (event) => {
+    if (event.target === settingsModal) {
+        settingsModal.style.display = 'none';
+    }
+});
 
 function showPopup() {
     const popup = document.getElementById('popup');
@@ -25,6 +75,8 @@ function hidePopup() {
 const popup = document.getElementById('popup');
 popup.style.display = 'none';
 }
+
+
 
   
 document.addEventListener("DOMContentLoaded", function() {
@@ -1904,7 +1956,7 @@ function applyColor(cell, value) {
         cell.style.backgroundColor = 'white'; // White for zero
     }
 }
-    function downloadTableAsCSV(tableId) {
+function downloadTableAsCSV(tableId) {
         const table = document.getElementById(tableId);
         let csvContent = "";
 
@@ -1988,16 +2040,14 @@ function kosko() {
     const activationType = document.getElementById('activation-value').value;
     const inferenceMechanismType = document.getElementById('inference-mechanism').value;
 
-    let iterations = 100;
-    let convergenceThreshold = 0.005;  // Threshold to check for convergence
-
-    // Define the transfer functions
+    // Sigmoid function with lambda
     function sigmoid(x) {
-        return 1 / (1 + Math.exp(-x));
+        return 1 / (1 + Math.exp(-lambda * x));
     }
 
+    // Tanh function with lambda
     function tanh(x) {
-        return Math.tanh(x);
+        return Math.tanh(lambda * x);
     }
 
     function bivalent(x) {
@@ -2161,11 +2211,11 @@ function kosko() {
                 maxDiff = diff;
             }
         }
-        return maxDiff <= convergenceThreshold;
+        return maxDiff <= convergence_threshold;
     }
 
     // Main simulation loop
-    for (let i = 0; i < iterations; i++) {
+    for (let i = 0; i < kosko_iterations; i++) {
         if (!convergenceStatus) {
             // Perform inference using the selected inference mechanism
             let inferredState = inferenceFunction(currentState, weightMatrix);
@@ -2190,12 +2240,12 @@ function kosko() {
             // Check for convergence
             convergenceStatus = checkConvergence(results);
         } else {
-            console.log(`The values converged in the ${stepCount + 1} state (residual <= ${convergenceThreshold})`);
+            console.log(`The values converged in the ${stepCount + 1} state (residual <= ${convergence_threshold})`);
             break;
         }
 
         // If the maximum number of iterations is reached without convergence
-        if (stepCount >= iterations) {
+        if (stepCount >= kosko_iterations) {
             console.warn("The values didn't converge. More iterations are required!");
             break;
         }
@@ -2461,6 +2511,9 @@ window.onload = function () {
     populateNodeFields(nodeNames, activationType);  // Initial population
 };
 
+
+
+
 function fixation() {
  
     console.log('Initiating fixation evaluation with tweak values...');
@@ -2514,19 +2567,16 @@ function fixation() {
     const transferFunctionType = document.getElementById('transfer-function').value;
     const activationType = document.getElementById('activation-value').value;
     const inferenceMechanismType = document.getElementById('inference-mechanism').value;
-
-    let iterations = 100;
-    let convergenceThreshold = 0.005;  // Threshold to check for convergence
-
     // Define the transfer functions
+    // Sigmoid function with lambda
     function sigmoid(x) {
-        return 1 / (1 + Math.exp(-x));
+        return 1 / (1 + Math.exp(-lambda * x));
     }
 
+    // Tanh function with lambda
     function tanh(x) {
-        return Math.tanh(x);
+        return Math.tanh(lambda * x);
     }
-
     function bivalent(x) {
         return x >= 0 ? 1 : -1;
     }
@@ -2688,10 +2738,10 @@ function fixation() {
                 maxDiff = diff;
             }
         }
-        return maxDiff <= convergenceThreshold;
+        return maxDiff <= convergence_threshold;
     }
     // Main simulation loop
-    for (let i = 0; i < iterations; i++) {
+    for (let i = 0; i < kosko_iterations; i++) {
         if (!convergenceStatus) {
             // Perform inference using the selected inference mechanism
             let inferredState = inferenceFunction(currentState, weightMatrix);
@@ -2721,12 +2771,12 @@ function fixation() {
             // Check for convergence
             convergenceStatus = checkConvergence(results);
         } else {
-            console.log(`The values converged in the ${stepCount + 1} state (residual <= ${convergenceThreshold})`);
+            console.log(`The values converged in the ${stepCount + 1} state (residual <= ${convergence_threshold})`);
             break;
         }
 
         // If the maximum number of iterations is reached without convergence
-        if (stepCount >= iterations) {
+        if (stepCount >= kosko_iterations) {
             console.warn("The values didn't converge. More iterations are required!");
             break;
         }
@@ -2768,9 +2818,24 @@ function updateFixationResultsTable(results, nodeNames) {
         });
 
         tableBody.appendChild(row);
-        
     });
-    // Step 1: Get the last row of the Kosko table (converged row)
+
+    // Step 1: Add Fixation Convergence Row (last iteration of fixation results)
+    const fixationLastRow = results[results.length - 1];
+    const fixationRow = document.createElement('tr');
+    const fixationLabelCell = document.createElement('td');
+    fixationLabelCell.textContent = 'Fixation Convergence';
+    fixationRow.appendChild(fixationLabelCell);
+
+    fixationLastRow.forEach(value => {
+        const cell = document.createElement('td');
+        cell.textContent = value.toFixed(5); // Fixation convergence row values
+        fixationRow.appendChild(cell);
+    });
+
+    tableBody.appendChild(fixationRow);
+
+    // Step 2: Get the last row of the Kosko table (converged row)
     const koskoTable = document.getElementById('kosko-results-table');
     const koskoLastRow = koskoTable.querySelector('tbody tr:last-child');
     let koskoLastRowValues = [];
@@ -2783,46 +2848,45 @@ function updateFixationResultsTable(results, nodeNames) {
             }
         });
 
-        // Step 2: Add Kosko's converged row to Fixation table
+        // Step 3: Add Kosko's converged row below Fixation Convergence
         const koskoRow = document.createElement('tr');
         const koskoLabelCell = document.createElement('td');
-        koskoLabelCell.textContent = 'Kosko Converged';  // Label for Kosko converged row
+        koskoLabelCell.textContent = 'Kosko Convergence';
         koskoRow.appendChild(koskoLabelCell);
 
         koskoLastRowValues.forEach(value => {
             const cell = document.createElement('td');
-            cell.textContent = value.toFixed(5);  // Keep the precision of 5 decimals
+            cell.textContent = value.toFixed(5); // Show Kosko row values
             koskoRow.appendChild(cell);
         });
 
         tableBody.appendChild(koskoRow);
 
-        // Step 3: Calculate the difference between Fixation last row and Kosko converged row
-        const fixationLastRow = results[results.length - 1];
-        let differenceValues = [];  // Store the difference values for the bar chart
-
+        // Step 4: Calculate the difference between Fixation Convergence and Kosko Convergence
+        let differenceValues = [];
         const differenceRow = document.createElement('tr');
         const differenceLabelCell = document.createElement('td');
-        differenceLabelCell.textContent = 'Difference (Fixation - Kosko)';  // Label for the difference row
+        differenceLabelCell.textContent = 'Difference (Fixation - Kosko)';
         differenceRow.appendChild(differenceLabelCell);
 
         fixationLastRow.forEach((value, index) => {
-            const difference = value - koskoLastRowValues[index];  // Calculate the difference
-            differenceValues.push(difference);  // Store the difference for the bar chart
+            const difference = value - koskoLastRowValues[index];
+            differenceValues.push(difference); // Store differences for the chart
 
             const cell = document.createElement('td');
-            cell.textContent = difference.toFixed(5);  // Show the difference with 5 decimals
+            cell.textContent = difference.toFixed(5);
             differenceRow.appendChild(cell);
         });
 
-        // Step 4: Add the difference row to the Fixation table
         tableBody.appendChild(differenceRow);
-        // Step 5: Render the difference row as a bar chart below the table
+
+        // Step 5: Render the difference as a bar chart
         renderDifferenceBarChart(differenceValues, nodeNames);
     } else {
         console.warn("Kosko results table doesn't have a converged row.");
     }
 }
+
 
 // Function to check if any node is tweaked
 function isAnyNodeTweaked() {
@@ -2932,6 +2996,29 @@ function renderDifferenceBarChart(differenceValues, nodeNames) {
 
     console.log("Bar chart rendered successfully.");
 }
+
+// Function to click Kosko and What-If buttons multiple times
+// Function to instantly click Kosko and What-If buttons in sequence
+function resetKoskoAndWhatIf() {
+    const koskoButton = document.querySelector('.green-button[onclick="kosko()"]');
+    const whatIfButton = document.querySelector('.green-button[onclick="fixation()"]');
+    
+    if (!koskoButton || !whatIfButton) {
+        console.error("Kosko or What-If button not found.");
+        return;
+    }
+    for (let index = 0; index < 4; index++) {
+        setTimeout(() => koskoButton.click(), 0);          // Instant click Kosko
+        setTimeout(() => whatIfButton.click(), 20);       // 200ms delay -> What-If
+        setTimeout(() => koskoButton.click(), 40);        // 200ms delay -> Kosko
+        setTimeout(() => whatIfButton.click(), 60);       // 200ms delay -> What-If
+        console.log("Reset sequence executed.");
+    }
+
+}
+
+// Event listener for Reset button
+document.getElementById('reset-btn').addEventListener('click', resetKoskoAndWhatIf);
 
 
 

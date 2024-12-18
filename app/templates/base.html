@@ -96,7 +96,7 @@
             <p style="padding: 20px; font-size: 13px;">Developed by<strong>
                 <a href="https://orcid.org/0009-0006-4088-6901"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Vartul Shrivastava 
             </strong>and<strong>
-                <a href="https://orcid.org/0000-0003-0722-2266"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Dr. Shekhar Shukla
+                <a href="https://orcid.org/0000-0003-0722-2266"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Prof. Shekhar Shukla
             </strong> for research purposes with ❤️</p>
     
         </nav>
@@ -161,7 +161,7 @@
                                     <p>Developed by<strong>
                                         <a href="https://orcid.org/0009-0006-4088-6901"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Vartul Shrivastava 
                                     </strong>and<strong>
-                                        <a href="https://orcid.org/0000-0003-0722-2266"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Dr. Shekhar Shukla
+                                        <a href="https://orcid.org/0000-0003-0722-2266"><img src="{{ url_for('static', filename='images/orcid.png') }}" alt="ORCID Logo" style="vertical-align: middle;width: 1rem;"></a> Prof. Shekhar Shukla
                                     </strong> for research purposes with ❤️</p>
                                     
                                 </div>
@@ -304,6 +304,7 @@
         <div class="kosko-table-container">
             <h2>Kosko Simulation</h2>
         <p style="margin: 0 auto;">Select the configuration for Kosko Analysis from simulation menu on bottom of the panel. The line chart represents the activation values of each concept at an iteration (hover on the chart to see). </p>
+        <button onclick="downloadTableAsCSV('kosko-results-table')">Download Kosko Convergence Table as CSV</button>
             <table id="kosko-results-table" border="1">
                 <thead>
                     <tr>
@@ -318,6 +319,7 @@
         <div class="fixation-table-container">
             <h2 style="margin: 10px auto;">Static Node(s) Convergence Analysis</h2>
             <p style="margin: 0 auto;"><strong>(Before performing What-if analysis, run Kosko simulation first)</strong>Nodes that you have selected as static concepts have now undergone Kosko simulation (The bar chart represents the difference in stable values achieved at static node convergence and original kosko convergence)</p>
+            <button onclick="downloadTableAsCSV('fixation-results-table')">Download Fixation Convergence Table as CSV</button>
             <table id="fixation-results-table" border="1" cellspacing="0" cellpadding="5">
                 <thead>
                     <tr>
@@ -336,16 +338,28 @@
             </div>
             <div class="regards">
                 <p>
-                    <strong>Please ensure</strong> that the configurations for <em>Kosko Simulation</em> and <em>What-if Case Simulation</em> are identical. 
-                    <strong>Discrepancies</strong> in the setup may lead to <em>unexpected differences</em> in the output values.
+                    <span class="important-text">Always follow this while performing What-if Analysis and Kosko Simulation:</span> <br><br>
+                    <strong>Step 1:</strong> <span class="highlight-text">Click <em>'Initiate Kosko'</em></span> <br>
+                    <strong>Step 2:</strong> <span class="highlight-text">Click <em>'Evaluate What-if Case'</em></span> <br>
+                    <strong>Step 3:</strong> <span class="highlight-text">Click <em>'Reset'</em></span> <br><br>
+                    <span class="warning-text"><strong>Ensure</strong> you reset <em>before</em> changing configurations for Kosko and subsequent What-if Analysis.</span>
+                </p>
+                <p>
+                    <strong>Please ensure</strong> that the configurations for 
+                    <span class="highlight-text"><em>Kosko Simulation</em></span> and 
+                    <span class="highlight-text"><em>What-if Case Simulation</em></span> are <strong>identical</strong>. <br><br>
+                    <span class="warning-text">Discrepancies in the setup may lead to <em>unexpected differences</em> in the output values.</span>
                 </p>
             </div>
+            
             
          
 <!-- Fixed Bottom Menu -->
 <!-- Fixed Bottom Menu -->
 <div id="bottom-menu">
+    
     <div class="dropdown-container">
+        <button id="open-settings-btn">Click to Set Lambda, threshold and Iterations</button>
         <div class="dropdown-item">
             <label for="inference-mechanism">Inference Mechanism:</label>
             <select id="inference-mechanism">
@@ -375,17 +389,43 @@
                 <option value="manual">Manual</option>
             </select>
         </div>
+
+        <div id="settings-modal" class="modal-add" style="display: none;">
+            <div class="modal-content-add">
+                <div class="input-group">
+                    <div class="input-item">
+                        <label for="lambda-input">Lambda</label>
+                        <input type="number" id="lambda-input" placeholder="Lambda" step="0.01" value="1.00">
+                    </div>
+                    <div class="input-item">
+                        <label for="kosko-iterations-input">Kosko Iterations</label>
+                        <input type="number" id="kosko-iterations-input" placeholder="Iterations" min="1" value="100">
+                    </div>
+                    <div class="input-item">
+                        <label for="convergence-threshold-input">Threshold</label>
+                        <input type="number" id="convergence-threshold-input" placeholder="Threshold" step="0.001" value="0.005">
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button id="save-settings-btn" class="green-button">Save</button>
+                    <button id="close-settings-btn" class="green-button">Close</button>
+                </div>
+            </div>
+        </div>
 </div>
     
     <!-- Additional buttons for evaluate and initiate -->
     <div class="button-container">
-        
-        <button class="green-button" onclick="fixation()">Evaluate What-if Case</button>
+        <!-- Reset Button -->
         <button class="green-button" onclick="kosko()">Initiate Classic Kosko</button>
+        <button class="green-button" onclick="fixation()">Evaluate What-if Case</button>
+        <button id="reset-btn" class="green-button">Reset</button>
     </div>
+    
     
     <!-- Right container: Scrollable Row for Node Activations and Tweaks -->
     <div id="scrollable-row-container" class="scrollable-row">
+        
         <!-- Node fields will be populated here -->
         <div id="node-fields-container" class="node-fields">
             <!-- Node fields dynamically populated -->
