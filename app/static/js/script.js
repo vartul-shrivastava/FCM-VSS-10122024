@@ -3018,7 +3018,7 @@ function checkAIReadiness() {
                     modelListContainer.innerHTML = "<p>No models available</p>";
                 }
             } else {
-                aiStatusElement.innerText = "AI system is not ready. Please ensure Ollama is running.";
+                aiStatusElement.innerText = "AI system is not ready. Please ensure Ollama is running on your local machine.";
                 aiStatusElement.style.color = "red";  // Set text color to red
             }
         })
