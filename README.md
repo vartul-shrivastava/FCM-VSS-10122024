@@ -47,8 +47,10 @@
     ```bash
     python app.py
     ```
-    This will launch FCM-VSS on your localhost.
+    This will launch FCM-VSS on your localhost. However, If you wish to access FCM-VSS instantly, here is the link to hosted FCM-VSS: https://vartulshrivastava.pythonanywhere.com/
+    (You can access all other features except AI inference capabilities, which will not be accessible in the web-deployed version because FCM-VSS relies on locally installed Ollama models. To access AI models in FCM-VSS, follow the Setup Instructions on your local machine)
     
+
 ## Usage
 Once the application is running, open your preferred web browser and navigate to the reproduced localhost link in the console to access the FCM-VSS toolkit. From there, you can create, visualize, simulate, and analyze your Fuzzy Cognitive Maps with ease.
 

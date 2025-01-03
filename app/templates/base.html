@@ -42,25 +42,24 @@
                 <li>
                     <div class="tooltip">
                         <button id="save-btn" onclick="saveProject()">Save Project</button>
-                        <span class="tooltiptext">Shortcut: Ctrl + S</span>
+                        <span class="tooltiptext">Shortcut: Alt + S</span>
                     </div>
                 </li>
                 <li>
                     <div class="tooltip">
                         <button id="load-btn" onclick="document.getElementById('loadProjectInput').click()">Load Project</button>
-                        <span class="tooltiptext">Shortcut: Ctrl + L</span>
                     </div>
                 </li>
                 <li>
                     <div class="tooltip">
                         <button id="add-node-btn" onclick="addNode()">Add Node</button>
-                        <span class="tooltiptext">Shortcut: Ctrl + Q</span>
+                        <span class="tooltiptext">Shortcut: Alt + N</span>
                     </div>
                 </li>
                 <li>
                     <div class="tooltip">
                         <button id="add-edge-btn" onclick="addEdge()">Add Edge</button>
-                        <span class="tooltiptext">Shortcut: Ctrl + E</span>
+                        <span class="tooltiptext">Shortcut: Alt + E</span>
                     </div>
                 </li>
                 <li>
@@ -256,7 +255,7 @@
         <!-- Node statistics table below the canvas -->
 <!-- Node statistics table below the canvas -->
 <div id="node-stats-container">
-    <p style="margin: 0 auto; padding: 0 25%;"><strong>Edge Creation: </strong> To create a directed edge, select the driving node (which will turn blue), and then select the receiving node (which will turn purple). Thereafter click 'Add Node' or 'Ctrl + E' to give a value in between -1 and 1 inclusively.</p>
+    <p style="margin: 0 auto; padding: 0 25%;"><strong>Edge Creation: </strong> To create a directed edge, select the driving node (which will turn blue), and then select the receiving node (which will turn purple). Thereafter click 'Add Node' or 'Alt + E' to give a value in between -1 and 1 inclusively.</p>
     <p style="margin: 25px auto; padding: 0 25%;"><strong>Node Statistics Table</strong> provides the number of indegree (incoming connections), outdegree (outgoing connections), centrality (importance in the network), and their respective values, indicating the type of node (e.g., driver, intermediary, receiver or NA).</p>
     <button onclick="downloadTableAsCSV('node-stats-table')">Download Node Stats as CSV</button>
     <div class="ns-container">

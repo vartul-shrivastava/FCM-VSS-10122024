@@ -1775,44 +1775,16 @@ document.addEventListener('keydown', function (event) {
         event.preventDefault(); // Prevent the default browser save behavior
         saveProject()
     }
-
-    // Example: Alt + L for "Load Project"
-    if (event.altKey && event.key === 'p') {
-        event.preventDefault();
-        loadProject()
-    }
-
     // Example: Alt + N for "Add Node"
     if (event.altKey && event.key === 'n') {
         event.preventDefault();
         addNode()
     }
-
-    // Example: Ctrl + E for "Add Edge"
+    // Example: Alt + E for "Add Edge"
     if (event.altKey && event.key === 'e') {
         event.preventDefault();
         addEdge()
     }
-
-    // Example: Ctrl + E for "Kosko Simulation"
-    if (event.altKey && event.key === 'k') {
-        event.preventDefault();
-        kosko()
-    }
-
-    // Example: Ctrl + E for "Kosko Simulation"
-    if (event.altKey && event.key === 'f') {
-        event.preventDefault();
-        fixation();
-    }
-
-    // Example: Ctrl + E for "Kosko Simulation"
-    if (event.altKey && event.key === 'w') {
-        event.preventDefault();
-        sendFCMData();
-    }
-
-
 });
 
 
