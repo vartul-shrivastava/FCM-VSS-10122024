@@ -56,4 +56,3 @@ Once the application is running, open your preferred web browser and navigate to
 
 ## License
 This project is licensed under the MIT License.
----
