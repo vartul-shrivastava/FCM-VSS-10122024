@@ -13,8 +13,8 @@
 - **Kosko Simulation**: Provides support for Original Kosko, Modified Kosko, and Rescaled Kosko inference mechanisms for dynamic FCM simulations.
 - **AI-Powered Summarization**: Uses AI models hosted via Ollama to generate detailed summaries of FCM configurations based on node statistics, Kosko simulation convergence, and what-if analysis.
 - **Checkpoint and Snapshot Management**: Allows users to save, load, and manage FCM configurations and track project progress through checkpoints and snapshots.
-- **Interactive Playground**: Enables real-time modifications of FCM networks, including node/edge addition and deletion, with drag-and-drop functionality and keyboard shortcuts.
-- **Customizable Transfer Functions**: Supports multiple transfer functions (Sigmoid, Tanh, Bivalent, Trivalent) and node activation patterns for advanced simulations.
+- **Interactive Playground**: Enables real-time modifications of FCM networks, including node/edge addition and deletion, with drag functionality and keyboard shortcuts.
+- **Customizable Transfer Functions**: Supports multiple transfer functions (Sigmoid, Tanh, Bivalent, Trivalent) and node activation patterns for customizable simulations.
 
 ## Installation and Setup
 
